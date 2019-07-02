@@ -63,6 +63,7 @@ trait CanBeVoted
     {
         return $this->morphToMany(config('follow.user_model'), config('follow.morph_prefix'), config('follow.followable_table'))
                     ->wherePivotIn('relation', [Follow::RELATION_UPVOTE, Follow::RELATION_DOWNVOTE])
+                    ->whereNull('deleted_at')
                     ->withPivot('followable_type', 'relation', 'created_at');
     }
 
@@ -75,6 +76,7 @@ trait CanBeVoted
     {
         return $this->morphToMany(config('follow.user_model'), config('follow.morph_prefix'), config('follow.followable_table'))
                     ->wherePivot('relation', '=', Follow::RELATION_UPVOTE)
+                    ->whereNull('deleted_at')
                     ->withPivot('followable_type', 'relation', 'created_at');
     }
 
@@ -87,6 +89,7 @@ trait CanBeVoted
     {
         return $this->morphToMany(config('follow.user_model'), config('follow.morph_prefix'), config('follow.followable_table'))
                     ->wherePivot('relation', '=', Follow::RELATION_DOWNVOTE)
+                    ->whereNull('deleted_at')
                     ->withPivot('followable_type', 'relation', 'created_at');
     }
 }

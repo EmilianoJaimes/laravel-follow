@@ -85,6 +85,7 @@ trait CanSubscribe
     {
         return $this->morphedByMany($class, config('follow.morph_prefix'), config('follow.followable_table'))
                     ->wherePivot('relation', '=', Follow::RELATION_SUBSCRIBE)
+                    ->whereNull('deleted_at')
                     ->withPivot('followable_type', 'relation', 'created_at');
     }
 }

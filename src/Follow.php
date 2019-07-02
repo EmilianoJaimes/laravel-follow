@@ -78,7 +78,8 @@ class Follow
             return $model->{$relation}->where('id', head($target->ids))->isNotEmpty();
         }
 
-        return $model->{$relation}($target->classname)->where('id', head($target->ids))->exists();
+        // return $model->{$relation}($target->classname)->where('id', head($target->ids))->exists();
+        return $model->{$relation}($target->classname)->where('id', head($target->ids))->whereNull('deleted_at')->exists();
     }
 
     /**
@@ -103,7 +104,11 @@ class Follow
             return false;
         }
 
-        return $model->{$relation}($targets->classname)->sync($targets->targets, false);
+        // return $model->{$relation}($targets->classname)->sync($targets->targets, false);
+        $model->{$relation}($targets->classname)->sync($targets->targets, false);
+        foreach($targets->ids as $id) {
+          $model->{$relation}($targets->classname)->updateExistingPivot($id, ['deleted_at' => null]);
+        }
     }
 
     /**
@@ -126,7 +131,10 @@ class Follow
             return false;
         }
 
-        return $model->{$relation}($targets->classname)->detach($targets->ids);
+        // return $model->{$relation}($targets->classname)->detach($targets->ids);
+        foreach($targets->ids as $id) {
+          $model->{$relation}($targets->classname)->updateExistingPivot($id, ['deleted_at' => \DB::raw('NOW()')]);
+        }
     }
 
     /**
@@ -141,19 +149,22 @@ class Follow
      */
     public static function toggleRelations(Model $model, $relation, $targets, $class)
     {
-        if (false === \event(new RelationToggling($model, $relation, $targets, $class))) {
-            return false;
-        }
-
-        $targets = self::attachPivotsFromRelation($model->{$relation}(), $targets, $class);
-
-        $results = $model->{$relation}($targets->classname)->toggle($targets->targets);
-
-        if (false === \event(new RelationToggled($model, $relation, $targets, $class, $results))) {
-            return false;
-        }
-
-        return $results;
+        dd('The toggleRelations method was not programmed to work with softDeletes. To-do.');
+        // TODO: Make the toggleRelations method work with SoftDeletes.
+        //
+        // if (false === \event(new RelationToggling($model, $relation, $targets, $class))) {
+        //     return false;
+        // }
+        //
+        // $targets = self::attachPivotsFromRelation($model->{$relation}(), $targets, $class);
+        //
+        // $results = $model->{$relation}($targets->classname)->toggle($targets->targets);
+        //
+        // if (false === \event(new RelationToggled($model, $relation, $targets, $class, $results))) {
+        //     return false;
+        // }
+        //
+        // return $results;
     }
 
     /**
