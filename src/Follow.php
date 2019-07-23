@@ -78,8 +78,9 @@ class Follow
             return $model->{$relation}->where('id', head($target->ids))->isNotEmpty();
         }
 
-        // return $model->{$relation}($target->classname)->where('id', head($target->ids))->exists();
-        return $model->{$relation}($target->classname)->where('id', head($target->ids))->whereNull('deleted_at')->exists();
+        $pivotTable = config('follow.followable_table');
+
+        return $model->{$relation}($target->classname)->where('id', head($target->ids))->whereNull("{$pivotTable}.deleted_at")->exists();
     }
 
     /**
@@ -104,10 +105,11 @@ class Follow
             return false;
         }
 
-        // return $model->{$relation}($targets->classname)->sync($targets->targets, false);
+        $pivotTable = config('follow.followable_table');
+
         $model->{$relation}($targets->classname)->sync($targets->targets, false);
         foreach($targets->ids as $id) {
-          $model->{$relation}($targets->classname)->updateExistingPivot($id, ['deleted_at' => null]);
+          $model->{$relation}($targets->classname)->updateExistingPivot($id, ["{$pivotTable}.deleted_at" => null]);
         }
     }
 
@@ -131,9 +133,10 @@ class Follow
             return false;
         }
 
-        // return $model->{$relation}($targets->classname)->detach($targets->ids);
+        $pivotTable = config('follow.followable_table');
+
         foreach($targets->ids as $id) {
-          $model->{$relation}($targets->classname)->updateExistingPivot($id, ['deleted_at' => \DB::raw('NOW()')]);
+          $model->{$relation}($targets->classname)->updateExistingPivot($id, ["{$pivotTable}.deleted_at" => \DB::raw('NOW()')]);
         }
     }
 

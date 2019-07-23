@@ -47,7 +47,7 @@ trait CanBeFollowed
 
         return $this->morphToMany(config('follow.user_model'), config('follow.morph_prefix'), config('follow.followable_table'))
             ->wherePivot('relation', '=', Follow::RELATION_FOLLOW)
-            ->whereNull('deleted_at')
+            ->whereNull("{$table}.deleted_at")
             ->withPivot('followable_type', 'relation', 'created_at')
             ->addSelect("{$userTable}.*", DB::raw("(CASE WHEN {$tablePrefixedForeignKey} IS NOT NULL THEN 1 ELSE 0 END) as {$eachOtherKey}"))
             ->leftJoin("{$table} as pivot_followables", function ($join) use ($table, $class, $foreignKey) {

@@ -105,7 +105,7 @@ trait CanFollow
 
         return $this->morphedByMany($class, config('follow.morph_prefix'), $table)
                     ->wherePivot('relation', '=', Follow::RELATION_FOLLOW)
-                    ->whereNull('deleted_at')
+                    ->whereNull("{$table}.deleted_at")
                     ->withPivot('followable_type', 'relation', 'created_at')
                     ->addSelect("{$targetTable}.*", DB::raw("(CASE WHEN {$tablePrefixedForeignKey} IS NOT NULL THEN 1 ELSE 0 END) as {$eachOtherKey}"))
                     ->leftJoin("{$table} as pivot_followables", function ($join) use ($table, $class, $foreignKey) {
